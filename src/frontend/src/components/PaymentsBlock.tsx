@@ -1,0 +1,130 @@
+import {
+  CheckCircle,
+  Copy,
+  CreditCard,
+  QrCode,
+  Smartphone,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { useState } from "react";
+import { useApp } from "../context/AppContext";
+
+export default function PaymentsBlock() {
+  const { settings } = useApp();
+  const [copied, setCopied] = useState(false);
+
+  const copyUPI = () => {
+    navigator.clipboard.writeText(settings.upiId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <section
+      id="payments"
+      className="py-20 bg-gradient-to-br from-blue-50/50 via-white to-emerald-50/50"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <span className="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            100% Secure
+          </span>
+          <h2
+            className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3"
+            style={{ fontFamily: "Poppins,sans-serif" }}
+          >
+            Secure Digital Payments
+          </h2>
+          <p className="text-slate-500">
+            Pay easily using UPI. Scan the QR code or copy the UPI ID below.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto glass rounded-3xl p-8 shadow-2xl shadow-emerald-900/10 border border-white/50"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Left - UPI Details */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <CreditCard size={18} className="text-emerald-600" />
+                </div>
+                <h3
+                  className="font-bold text-slate-900"
+                  style={{ fontFamily: "Poppins,sans-serif" }}
+                >
+                  UPI Payment
+                </h3>
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-4 mb-4 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1 font-medium">
+                  UPI ID
+                </p>
+                <p className="font-mono text-xs sm:text-sm font-bold text-slate-900 break-all">
+                  {settings.upiId}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={copyUPI}
+                className={`flex items-center gap-2 w-full justify-center py-3 rounded-xl font-semibold text-sm transition-all ${
+                  copied
+                    ? "bg-green-600 text-white"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                }`}
+              >
+                {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
+                {copied ? "Copied!" : "Copy UPI ID"}
+              </button>
+
+              <div className="mt-4">
+                <p className="text-xs text-slate-500 mb-2">Accepted via</p>
+                <div className="flex gap-2 flex-wrap">
+                  {["GPay", "PhonePe", "Paytm", "BHIM"].map((app) => (
+                    <span
+                      key={app}
+                      className="bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm"
+                    >
+                      {app}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right - QR Code Placeholder */}
+            <div className="flex flex-col items-center">
+              <div className="w-48 h-48 border-2 border-dashed border-emerald-300 rounded-2xl flex flex-col items-center justify-center bg-white/80 gap-3">
+                <QrCode size={48} className="text-emerald-500" />
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-slate-700">
+                    UPI QR Code
+                  </p>
+                  <p className="text-xs text-slate-400">Scan to Pay</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 mt-3">
+                <Smartphone size={14} className="text-slate-400" />
+                <span className="text-xs text-slate-500">
+                  Open any UPI app &amp; scan
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
