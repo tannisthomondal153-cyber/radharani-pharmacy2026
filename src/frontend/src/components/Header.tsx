@@ -1,5 +1,6 @@
-import { Cross, Menu, Phone, Pill, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, Phone, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 
 interface HeaderProps {
@@ -7,9 +8,30 @@ interface HeaderProps {
   currentPath: string;
 }
 
+const HEALTH_TIPS = [
+  "💊 Always complete your antibiotic course as prescribed",
+  "🌿 Stay hydrated — drink 8 glasses of water daily",
+  "🩺 Schedule regular health check-ups every 6 months",
+  "💉 Keep your vaccinations up to date for full protection",
+  "🍎 A balanced diet reduces your risk of chronic disease by 80%",
+  "😴 Quality sleep of 7-8 hours boosts your immune system",
+  "🏃 30 minutes of daily exercise improves heart health significantly",
+  "🌞 Vitamin D — spend 15 minutes in sunlight every morning",
+  "🧴 Always store medicines away from heat and moisture",
+  "❤️ Check your blood pressure regularly — hypertension is silent",
+];
+
 export default function Header({ onNavigate, currentPath }: HeaderProps) {
   const { settings } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [tipIndex, setTipIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTipIndex((prev) => (prev + 1) % HEALTH_TIPS.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scrollTo = (id: string) => {
     setMobileOpen(false);
@@ -17,9 +39,11 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
       onNavigate("/");
       setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      }, 350);
     } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     }
   };
 
@@ -29,7 +53,10 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
     { label: "Payments", action: () => scrollTo("payments") },
     { label: "Location", action: () => scrollTo("location") },
     { label: "Contact", action: () => scrollTo("contact") },
+    { label: "Reviews", action: () => onNavigate("/reviews") },
   ];
+
+  const isAdmin = currentPath.startsWith("/admin");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/85 border-b border-white/30 shadow-sm">
@@ -40,10 +67,13 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
             type="button"
             onClick={() => scrollTo("hero")}
             className="flex items-center gap-2 group"
+            data-ocid="header.link"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-md shadow-emerald-900/20">
-              <Cross size={18} className="text-white fill-white" />
-            </div>
+            <img
+              src="/assets/1000140718-019d49d7-9b4a-770b-9ad2-98d53769fbb0.png"
+              alt="Radharani Pharmacy Logo"
+              className="w-9 h-9 object-contain"
+            />
             <div className="text-left">
               <span
                 className="block font-bold text-slate-900 text-sm leading-tight"
@@ -64,7 +94,8 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
                 type="button"
                 key={link.label}
                 onClick={link.action}
-                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                data-ocid="header.link"
+                className="relative text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-emerald-500 after:transition-all after:duration-300"
               >
                 {link.label}
               </button>
@@ -84,35 +115,96 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
               type="button"
               className="md:hidden text-slate-700 p-2"
               onClick={() => setMobileOpen(!mobileOpen)}
+              data-ocid="header.toggle"
             >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              <AnimatePresence mode="wait" initial={false}>
+                {mobileOpen ? (
+                  <motion.span
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="block"
+                  >
+                    <X size={22} />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="block"
+                  >
+                    <Menu size={22} />
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="md:hidden pb-4 pt-2 border-t border-slate-100">
-            {navLinks.map((link) => (
-              <button
-                type="button"
-                key={link.label}
-                onClick={link.action}
-                className="block w-full text-left px-2 py-2.5 text-sm font-medium text-slate-700 hover:text-emerald-600"
-              >
-                {link.label}
-              </button>
-            ))}
-            <a
-              href={`tel:${settings.phone1.replace(/\s/g, "")}`}
-              className="mt-2 flex items-center gap-2 bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-xl w-full justify-center"
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              className="md:hidden overflow-hidden border-t border-slate-100"
             >
-              <Phone size={15} />
-              {settings.phone1}
-            </a>
-          </div>
-        )}
+              <div className="pb-4 pt-2">
+                {navLinks.map((link) => (
+                  <button
+                    type="button"
+                    key={link.label}
+                    onClick={link.action}
+                    data-ocid="header.link"
+                    className="block w-full text-left px-2 py-2.5 text-sm font-medium text-slate-700 hover:text-emerald-600 active:text-emerald-700"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+                <a
+                  href={`tel:${settings.phone1.replace(/\s/g, "")}`}
+                  className="mt-2 flex items-center gap-2 bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-xl w-full justify-center"
+                >
+                  <Phone size={15} />
+                  {settings.phone1}
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Health Tips Ticker */}
+      {!isAdmin && (
+        <div className="bg-emerald-600/90 text-white text-xs py-1 px-4 overflow-hidden">
+          <div className="max-w-7xl mx-auto flex items-center gap-2">
+            <span className="text-emerald-200 font-semibold whitespace-nowrap">
+              Health Tip:
+            </span>
+            <div className="flex-1 overflow-hidden relative h-5">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={tipIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="absolute inset-0 flex items-center whitespace-nowrap"
+                >
+                  {HEALTH_TIPS[tipIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

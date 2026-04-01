@@ -14,6 +14,15 @@ import { motion } from "motion/react";
 const WA_LINK =
   "https://wa.me/919831279222?text=Hello%20Radharani%20Pharmacy,%20I%20want%20to%20order%20medicines:%20";
 
+const iconItems = [
+  { icon: Heart, label: "Cardiology" },
+  { icon: Pill, label: "Pharmacy" },
+  { icon: Stethoscope, label: "Diagnosis" },
+  { icon: Shield, label: "Safety" },
+  { icon: Zap, label: "Fast Service" },
+  { icon: Award, label: "Certified" },
+];
+
 export default function Hero() {
   const scrollToDoctors = () => {
     document.getElementById("doctors")?.scrollIntoView({ behavior: "smooth" });
@@ -29,12 +38,17 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ type: "spring", stiffness: 70, damping: 18 }}
           >
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{
+                delay: 0.2,
+                type: "spring",
+                stiffness: 120,
+                damping: 20,
+              }}
               className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
             >
               <Award size={14} />
@@ -63,23 +77,32 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <a
+              <motion.a
                 href={WA_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/20 transition-all hover:-translate-y-0.5"
+                className="shimmer-btn flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/20 transition-colors"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(16,185,129,0.25)",
+                }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <MessageCircle size={18} />
                 Order via WhatsApp
-              </a>
-              <button
+              </motion.a>
+              <motion.button
                 type="button"
                 onClick={scrollToDoctors}
-                className="flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <Calendar size={18} />
                 Book Appointment
-              </button>
+              </motion.button>
             </div>
 
             <div className="flex flex-wrap gap-4 text-sm text-slate-600">
@@ -99,25 +122,55 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{
+              type: "spring",
+              stiffness: 70,
+              damping: 18,
+              delay: 0.15,
+            }}
             className="relative flex items-center justify-center"
           >
             <div className="relative w-full max-w-md mx-auto">
-              <div className="glass rounded-3xl p-8 shadow-2xl shadow-emerald-900/15 border border-white/40">
+              <motion.div
+                className="glass rounded-3xl p-8 shadow-2xl shadow-emerald-900/15 border border-white/40"
+                whileHover={{
+                  scale: 1.03,
+                  boxShadow: "0 25px 50px rgba(16,185,129,0.2)",
+                }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+              >
                 <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-8 mb-4 flex items-center justify-center">
                   <div className="float-anim">
-                    <div className="grid grid-cols-3 gap-4">
-                      {[
-                        { icon: Heart, label: "Cardiology" },
-                        { icon: Pill, label: "Pharmacy" },
-                        { icon: Stethoscope, label: "Diagnosis" },
-                        { icon: Shield, label: "Safety" },
-                        { icon: Zap, label: "Fast Service" },
-                        { icon: Award, label: "Certified" },
-                      ].map(({ icon: Icon, label }) => (
-                        <div
+                    <motion.div
+                      className="grid grid-cols-3 gap-4"
+                      initial="hidden"
+                      animate="show"
+                      variants={{
+                        hidden: {},
+                        show: {
+                          transition: {
+                            staggerChildren: 0.08,
+                            delayChildren: 0.4,
+                          },
+                        },
+                      }}
+                    >
+                      {iconItems.map(({ icon: Icon, label }) => (
+                        <motion.div
                           key={label}
                           className="flex flex-col items-center gap-1"
+                          variants={{
+                            hidden: { opacity: 0, scale: 0.7 },
+                            show: {
+                              opacity: 1,
+                              scale: 1,
+                              transition: {
+                                type: "spring",
+                                stiffness: 200,
+                                damping: 18,
+                              },
+                            },
+                          }}
                         >
                           <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                             <Icon size={20} className="text-white" />
@@ -125,9 +178,9 @@ export default function Hero() {
                           <span className="text-white/80 text-xs font-medium">
                             {label}
                           </span>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
                 <div className="text-center">
@@ -141,14 +194,15 @@ export default function Hero() {
                     Your Health, Our Priority
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{
                   repeat: Number.POSITIVE_INFINITY,
-                  duration: 3,
+                  duration: 4,
                   ease: "easeInOut",
+                  type: "tween",
                 }}
                 className="absolute -top-4 -right-4 bg-white rounded-2xl px-3 py-2 shadow-lg border border-emerald-100"
               >
@@ -169,8 +223,9 @@ export default function Hero() {
                 animate={{ y: [0, 8, 0] }}
                 transition={{
                   repeat: Number.POSITIVE_INFINITY,
-                  duration: 3.5,
+                  duration: 4,
                   ease: "easeInOut",
+                  type: "tween",
                   delay: 0.5,
                 }}
                 className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-3 py-2 shadow-lg border border-blue-100"

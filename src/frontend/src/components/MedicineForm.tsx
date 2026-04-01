@@ -53,6 +53,7 @@ export default function MedicineForm() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
           className="text-center mb-12"
         >
           <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
@@ -74,6 +75,12 @@ export default function MedicineForm() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{
+            type: "spring",
+            stiffness: 80,
+            damping: 18,
+            delay: 0.1,
+          }}
           className="max-w-lg mx-auto glass rounded-3xl p-8 shadow-2xl shadow-emerald-900/10 border border-white/50"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -169,10 +176,13 @@ export default function MedicineForm() {
               </span>
             </label>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-900/20 hover:-translate-y-0.5"
+              className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-900/20 shimmer-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               {loading ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -180,7 +190,7 @@ export default function MedicineForm() {
                 <MessageCircle size={18} />
               )}
               {loading ? "Sending..." : "Send Order via WhatsApp"}
-            </button>
+            </motion.button>
           </form>
         </motion.div>
       </div>
@@ -188,9 +198,10 @@ export default function MedicineForm() {
       <AnimatePresence>
         {showToast && (
           <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 60 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ type: "spring", stiffness: 200, damping: 22 }}
             className="fixed top-20 right-4 z-50 bg-white rounded-2xl p-4 shadow-2xl border border-emerald-200 flex items-center gap-3 max-w-sm"
           >
             <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">

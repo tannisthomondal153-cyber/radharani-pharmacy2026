@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import { AppProvider } from "./context/AppContext";
 import HomePage from "./pages/HomePage";
+import ReviewsPage from "./pages/ReviewsPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLogin from "./pages/admin/AdminLogin";
 
@@ -30,9 +31,10 @@ function AppRoutes() {
     <div className="min-h-screen">
       {!isAdminRoute && <Header onNavigate={navigate} currentPath={path} />}
       {path === "/" && <HomePage />}
+      {path === "/reviews" && <ReviewsPage onNavigate={navigate} />}
       {path === "/admin" && <AdminLogin onNavigate={navigate} />}
       {path === "/admin/dashboard" && <AdminDashboard onNavigate={navigate} />}
-      {!["/", "/admin", "/admin/dashboard"].includes(path) && (
+      {!["/", "/reviews", "/admin", "/admin/dashboard"].includes(path) && (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50">
           <div className="text-center">
             <h1

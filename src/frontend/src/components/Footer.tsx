@@ -1,8 +1,14 @@
 import { Clock, Cross, MapPin, MessageCircle, Phone } from "lucide-react";
+import { motion } from "motion/react";
 import { useApp } from "../context/AppContext";
 
 const WA_LINK =
   "https://wa.me/919831279222?text=Hello%20Radharani%20Pharmacy,%20I%20want%20to%20order%20medicines:%20";
+
+const columnVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function Footer() {
   const { settings } = useApp();
@@ -15,9 +21,18 @@ export default function Footer() {
     <>
       <footer className="bg-slate-900 text-slate-300 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            transition={{ staggerChildren: 0.1 }}
+          >
             {/* About */}
-            <div>
+            <motion.div
+              variants={columnVariants}
+              transition={{ type: "spring", stiffness: 80, damping: 18 }}
+            >
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
                   <Cross size={14} className="text-white fill-white" />
@@ -33,10 +48,13 @@ export default function Footer() {
                 Your trusted neighborhood pharmacy in Kolkata. Providing quality
                 medicines and healthcare services since 2025.
               </p>
-            </div>
+            </motion.div>
 
             {/* Quick Links */}
-            <div>
+            <motion.div
+              variants={columnVariants}
+              transition={{ type: "spring", stiffness: 80, damping: 18 }}
+            >
               <h4
                 className="font-semibold text-white mb-4 text-sm"
                 style={{ fontFamily: "Poppins,sans-serif" }}
@@ -60,10 +78,13 @@ export default function Footer() {
                   ),
                 )}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Services */}
-            <div>
+            <motion.div
+              variants={columnVariants}
+              transition={{ type: "spring", stiffness: 80, damping: 18 }}
+            >
               <h4
                 className="font-semibold text-white mb-4 text-sm"
                 style={{ fontFamily: "Poppins,sans-serif" }}
@@ -84,10 +105,13 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Contact */}
-            <div>
+            <motion.div
+              variants={columnVariants}
+              transition={{ type: "spring", stiffness: 80, damping: 18 }}
+            >
               <h4
                 className="font-semibold text-white mb-4 text-sm"
                 style={{ fontFamily: "Poppins,sans-serif" }}
@@ -121,12 +145,13 @@ export default function Footer() {
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              © 2025 Radharani Pharmacy. All rights reserved.
+              © {new Date().getFullYear()} Radharani Pharmacy. All rights
+              reserved.
             </p>
             <p className="text-xs text-slate-500">
               Licensed Chemist &amp; Druggist | Govt. Approved
@@ -136,14 +161,17 @@ export default function Footer() {
       </footer>
 
       {/* Floating WhatsApp Button */}
-      <a
+      <motion.a
         href={WA_LINK}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl shadow-green-900/30 transition-all hover:-translate-y-1 pulse-cta"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl shadow-green-900/30 transition-colors pulse-cta"
+        whileHover={{ y: -4, scale: 1.08 }}
+        whileTap={{ scale: 0.94 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <MessageCircle size={26} className="text-white fill-white" />
-      </a>
+      </motion.a>
     </>
   );
 }

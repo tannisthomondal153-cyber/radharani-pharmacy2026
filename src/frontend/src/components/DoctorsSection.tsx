@@ -6,7 +6,7 @@ import {
   Stethoscope,
   X,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { type Doctor, useApp } from "../context/AppContext";
 
@@ -62,9 +62,10 @@ function BookingModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.85, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.85, opacity: 0, y: 20 }}
+        transition={{ type: "spring", stiffness: 200, damping: 22 }}
         className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-white/50 relative"
       >
         <button
@@ -126,23 +127,28 @@ export default function DoctorsSection() {
 
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    show: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
   const item = {
     hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring" as const, stiffness: 80, damping: 18 },
+    },
   };
 
   return (
     <section
       id="doctors"
-      className="py-20 bg-gradient-to-b from-white to-emerald-50/30"
+      className="py-20 bg-gradient-to-b from-white to-emerald-50/30 section-glow"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
           className="text-center mb-14"
         >
           <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
@@ -164,14 +170,19 @@ export default function DoctorsSection() {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.1 }}
+          viewport={{ once: true, amount: 0.05 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {doctors.map((doctor, index) => (
             <motion.div
               key={doctor.id}
               variants={item}
-              className="glass rounded-2xl p-6 shadow-xl shadow-emerald-900/8 hover:-translate-y-2 transition-transform duration-300 cursor-pointer group border border-white/40"
+              className="glass rounded-2xl p-6 shadow-xl shadow-emerald-900/8 cursor-pointer group border border-white/40"
+              whileHover={{
+                y: -8,
+                boxShadow: "0 24px 48px rgba(16,185,129,0.15)",
+              }}
+              transition={{ type: "spring", stiffness: 200, damping: 22 }}
               onClick={() => setSelectedDoctor(doctor)}
             >
               <div className="flex items-start gap-4 mb-4">
@@ -215,24 +226,29 @@ export default function DoctorsSection() {
                 </p>
               )}
 
-              <button
+              <motion.button
                 type="button"
                 className="w-full bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white text-sm font-semibold py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-md"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <Stethoscope size={15} />
                 Book Appointment
-              </button>
+              </motion.button>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
-      {selectedDoctor && (
-        <BookingModal
-          doctor={selectedDoctor}
-          onClose={() => setSelectedDoctor(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedDoctor && (
+          <BookingModal
+            doctor={selectedDoctor}
+            onClose={() => setSelectedDoctor(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
