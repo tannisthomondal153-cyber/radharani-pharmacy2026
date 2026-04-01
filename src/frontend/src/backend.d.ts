@@ -19,15 +19,24 @@ export interface Doctor {
     specialty: string;
     schedule: string;
 }
+export interface BackendReview {
+    id: bigint;
+    name: string;
+    rating: bigint;
+    comment: string;
+    createdAt: bigint;
+}
 export interface backendInterface {
     addDoctor(doctor: Doctor): Promise<bigint>;
     addPrescription(prescription: Prescription): Promise<bigint>;
+    addReview(name: string, rating: bigint, comment: string): Promise<bigint>;
     getBusinessHours(): Promise<string>;
     getDoctor(id: bigint): Promise<Doctor>;
     getDoctors(): Promise<Array<Doctor>>;
     getPhone1(): Promise<string>;
     getPhone2(): Promise<string>;
     getPrescriptions(): Promise<Array<Prescription>>;
+    getReviews(): Promise<Array<BackendReview>>;
     getUpiId(): Promise<string>;
     removeDoctor(id: bigint): Promise<void>;
     setBusinessHours(newBusinessHours: string): Promise<void>;

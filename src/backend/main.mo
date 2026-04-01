@@ -27,6 +27,14 @@ actor {
     submittedAt : Int;
   };
 
+  type Review = {
+    id : Nat;
+    name : Text;
+    rating : Nat;
+    comment : Text;
+    createdAt : Int;
+  };
+
   let doctors = Map.fromIter<Nat, Doctor>([(1, {
     name = "Dr. Alimpan Basak";
     specialty = "General Physician, Diabetes & Heart";
@@ -74,9 +82,11 @@ actor {
     schedule = "Evening";
   })].values()));
   let prescriptions = Map.empty<Nat, Prescription>();
+  let reviews = Map.empty<Nat, Review>();
 
   var nextDoctorId = 10;
   var nextPrescriptionId = 1;
+  var nextReviewId = 1;
   var businessHours = "Mon-Sat: 8 AM – 10 PM | Sun: 9 AM – 8 PM";
   var phone1 = "+91 6289660967";
   var phone2 = "+91 9831279222";
@@ -120,6 +130,24 @@ actor {
 
   public query ({ caller }) func getPrescriptions() : async [Prescription] {
     prescriptions.values().toArray();
+  };
+
+  public shared ({ caller }) func addReview(name : Text, rating : Nat, comment : Text) : async Nat {
+    let id = nextReviewId;
+    nextReviewId += 1;
+    let review : Review = {
+      id;
+      name;
+      rating;
+      comment;
+      createdAt = Time.now();
+    };
+    reviews.add(id, review);
+    id;
+  };
+
+  public query ({ caller }) func getReviews() : async [Review] {
+    reviews.values().toArray();
   };
 
   public query ({ caller }) func getBusinessHours() : async Text {
