@@ -1,4 +1,4 @@
-import { Clock, Cross, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, Cross, MapPin, MessageCircle, Phone } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 const WA_LINK =
@@ -31,7 +31,7 @@ export default function Footer() {
               </div>
               <p className="text-sm text-slate-400 leading-relaxed">
                 Your trusted neighborhood pharmacy in Kolkata. Providing quality
-                medicines and healthcare services since 1990.
+                medicines and healthcare services since 2025.
               </p>
             </div>
 
@@ -101,7 +101,8 @@ export default function Footer() {
                     className="text-emerald-500 mt-0.5 flex-shrink-0"
                   />
                   <span className="text-sm text-slate-400">
-                    Kolkata, West Bengal – 700 059
+                    D/5 Shahid Bandhu Nagar Colony, 2no Gate, Near Nag Sweet,
+                    Kolkata
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -125,7 +126,7 @@ export default function Footer() {
 
           <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              © 2024 Radharani Pharmacy. All rights reserved.
+              © 2025 Radharani Pharmacy. All rights reserved.
             </p>
             <p className="text-xs text-slate-500">
               Licensed Chemist &amp; Druggist | Govt. Approved

@@ -15,6 +15,7 @@ export interface Doctor {
   specialty: string;
   qualifications: string;
   schedule: string;
+  description?: string;
 }
 
 export interface Inquiry {
@@ -51,65 +52,84 @@ const SEED_DOCTORS: Doctor[] = [
   {
     id: 1,
     name: "Dr. Alimpan Basak",
-    specialty: "General Physician, Diabetes & Heart",
-    qualifications: "MBBS, CCCS, FCCS",
-    schedule: "Mon, Wed, Sat",
+    specialty: "General Physician",
+    qualifications:
+      "MBBS (Cal), USLS-BLA-1, CCCS (London), CCEBDM, CIMT, F.C.C.S",
+    schedule: "Monday, Wednesday & Saturday (Afternoon)",
+    description:
+      "An experienced physician known for managing chronic and lifestyle-related diseases with precision and care. Specialization: Diabetes, Heart Disease, Stroke Management.",
   },
   {
     id: 2,
     name: "Dr. Gaurav Taparia",
-    specialty: "Orthopedic & Spine Surgeon",
-    qualifications: "MBBS, MS, FNB",
-    schedule: "Mon, Thu",
+    specialty: "Orthopaedic & Spine Surgeon",
+    qualifications: "MBBS, MS (Ortho), FNB (Spine)",
+    schedule: "Monday & Thursday",
+    description:
+      "Expert in treating fractures, joint pain, and complex spine conditions with modern orthopaedic solutions. Specialization: Bone, Joint & Spine Disorders.",
   },
   {
     id: 3,
-    name: "Dr. Kaushik Roy",
-    specialty: "Pediatrician",
+    name: "Dr. Kaushik Ray",
+    specialty: "Paediatrician",
     qualifications: "MBBS, DCH, MD",
-    schedule: "Evening",
+    schedule: "By Appointment Only",
+    description:
+      "Provides specialized care for infants, children, and adolescents with a focus on overall growth and development. Formerly associated with Dr. B.C. Roy Children Hospital, Medical College Kolkata, Neotia Hospital, Devine Child Care.",
   },
   {
     id: 4,
     name: "Dr. Tuhin Shubhra Sarkar",
-    specialty: "Internal Medicine",
-    qualifications: "MBBS, MD",
-    schedule: "Thu 7 PM",
+    specialty: "General Physician",
+    qualifications: "MBBS, MD (Medicine)",
+    schedule: "Thursday (7:00 PM)",
+    description:
+      "Offers expert consultation for a wide range of adult medical conditions with academic excellence and clinical expertise. Assistant Professor, R.G. Kar Medical College & Hospital.",
   },
   {
     id: 5,
     name: "Dr. Tanima Garai",
     specialty: "Dermatologist",
-    qualifications: "MBBS, MD",
-    schedule: "Sun 6 PM",
+    qualifications: "MBBS (CMC), MD (Dermatology)",
+    schedule: "Every Sunday (6:00 PM)",
+    description:
+      "Specialist in modern dermatological treatments for healthy skin and hair care. Specialization: Skin, Hair & Nail Disorders.",
   },
   {
     id: 6,
-    name: "Dr. Sandeeptha Ghosh",
-    specialty: "Psychiatrist",
+    name: "Dr. Sandipta Ghosh",
+    specialty: "Consultant Psychiatrist",
     qualifications: "MBBS, MD",
-    schedule: "Daily 6 PM",
+    schedule: "Every Day (6:00 PM)",
+    description:
+      "Dedicated to improving mental well-being through compassionate and evidence-based psychiatric care. Specialization: Mental Health, Anxiety, Depression, Stress Disorders.",
   },
   {
     id: 7,
     name: "Dr. Krishnendu Das",
-    specialty: "Gynecologist",
-    qualifications: "MBBS, MS, DNB",
-    schedule: "Mon, Wed, Fri 6 PM",
+    specialty: "Gynaecologist",
+    qualifications: "MBBS, MS (G&O), DNB",
+    schedule: "Monday, Wednesday & Friday (6:00 PM)",
+    description:
+      "Highly experienced in women's health, pregnancy care, and gynecological treatments. Ex-Visiting Surgeon at Ramkrishna Mission Seva Pratishthan; Associated with P.G. Hospital, Sishumangal Hospital & Woodlands Hospital, Kolkata.",
   },
   {
     id: 8,
-    name: "Dr. Rahul De",
+    name: "Dr. Rahul Dey",
     specialty: "ENT Specialist",
-    qualifications: "MBBS, MS",
-    schedule: "Daily Evening",
+    qualifications: "MBBS (Cal), MS (ENT)",
+    schedule: "Every Day",
+    description:
+      "Provides expert care for ENT-related issues with surgical and non-surgical treatments. Specialization: Ear, Nose, Throat & Head-Neck Surgery.",
   },
   {
     id: 9,
-    name: "Dr. Jagannath Saha",
+    name: "Dr. Jagnnath Saha",
     specialty: "General Medicine",
-    qualifications: "MBBS, MD",
-    schedule: "Evening",
+    qualifications: "MBBS, MD (Radiotherapy)",
+    schedule: "By Appointment Only",
+    description:
+      "Offers general medical consultation and guidance for various health concerns.",
   },
 ];
 
@@ -133,6 +153,10 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [doctors, setDoctors] = useState<Doctor[]>(() => {
     try {
+      if (localStorage.getItem("rp_doctors_v") !== "2") {
+        localStorage.removeItem("rp_doctors");
+        localStorage.setItem("rp_doctors_v", "2");
+      }
       const stored = localStorage.getItem("rp_doctors");
       return stored ? JSON.parse(stored) : SEED_DOCTORS;
     } catch {

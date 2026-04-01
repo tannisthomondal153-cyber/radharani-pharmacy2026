@@ -38,7 +38,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
             >
               <Award size={14} />
-              Trusted Since 1990
+              Trusted Since 2025
             </motion.div>
 
             <h1

@@ -13,11 +13,15 @@ import { type Doctor, useApp } from "../context/AppContext";
 const SPECIALTY_COLORS: Record<string, string> = {
   General: "bg-emerald-100 text-emerald-700",
   Orthopedic: "bg-blue-100 text-blue-700",
+  Orthopaedic: "bg-blue-100 text-blue-700",
   Pediatrician: "bg-pink-100 text-pink-700",
+  Paediatric: "bg-pink-100 text-pink-700",
   Internal: "bg-purple-100 text-purple-700",
   Dermatologist: "bg-orange-100 text-orange-700",
   Psychiatrist: "bg-indigo-100 text-indigo-700",
+  Consultant: "bg-indigo-100 text-indigo-700",
   Gynecologist: "bg-rose-100 text-rose-700",
+  Gynaecologist: "bg-rose-100 text-rose-700",
   ENT: "bg-teal-100 text-teal-700",
 };
 
@@ -70,7 +74,7 @@ function BookingModal({
         >
           <X size={20} />
         </button>
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <div
             className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${AVATAR_GRADIENTS[0]} flex items-center justify-center text-white font-bold text-xl mb-3`}
           >
@@ -87,6 +91,11 @@ function BookingModal({
           >
             {doctor.specialty}
           </span>
+          {doctor.description && (
+            <p className="mt-3 text-xs text-slate-500 text-left leading-relaxed">
+              {doctor.description}
+            </p>
+          )}
         </div>
         <div className="space-y-3">
           <a
@@ -186,7 +195,7 @@ export default function DoctorsSection() {
                 </div>
               </div>
 
-              <div className="space-y-2 mb-4">
+              <div className="space-y-2 mb-3">
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <GraduationCap
                     size={14}
@@ -199,6 +208,12 @@ export default function DoctorsSection() {
                   <span>{doctor.schedule}</span>
                 </div>
               </div>
+
+              {doctor.description && (
+                <p className="text-xs text-slate-400 line-clamp-2 mb-3 leading-relaxed">
+                  {doctor.description}
+                </p>
+              )}
 
               <button
                 type="button"

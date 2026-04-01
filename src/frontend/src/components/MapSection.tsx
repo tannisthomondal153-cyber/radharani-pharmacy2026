@@ -53,7 +53,8 @@ export default function MapSection() {
                     Address
                   </p>
                   <p className="text-slate-500 text-xs mt-0.5">
-                    Radharani Pharmacy, Kolkata, West Bengal – 700 059
+                    D/5 Shahid Bandhu Nagar Colony, 2no Gate, Near Nag Sweet,
+                    Kolkata
                   </p>
                 </div>
               </div>

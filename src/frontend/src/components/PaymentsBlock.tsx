@@ -1,13 +1,10 @@
-import {
-  CheckCircle,
-  Copy,
-  CreditCard,
-  QrCode,
-  Smartphone,
-} from "lucide-react";
+import { CheckCircle, Copy, CreditCard, Smartphone } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
+
+const UPI_QR =
+  "/assets/uploads/850a9f1ffb0b967c1a81ce9174bd1f47-019d3777-930e-75dc-a161-a1ba76607789-1.webp";
 
 export default function PaymentsBlock() {
   const { settings } = useApp();
@@ -104,16 +101,14 @@ export default function PaymentsBlock() {
               </div>
             </div>
 
-            {/* Right - QR Code Placeholder */}
+            {/* Right - QR Code */}
             <div className="flex flex-col items-center">
-              <div className="w-48 h-48 border-2 border-dashed border-emerald-300 rounded-2xl flex flex-col items-center justify-center bg-white/80 gap-3">
-                <QrCode size={48} className="text-emerald-500" />
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-700">
-                    UPI QR Code
-                  </p>
-                  <p className="text-xs text-slate-400">Scan to Pay</p>
-                </div>
+              <div className="w-52 h-52 rounded-2xl overflow-hidden border-2 border-emerald-200 shadow-lg bg-white flex items-center justify-center">
+                <img
+                  src={UPI_QR}
+                  alt="UPI QR Code – Scan to Pay"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex items-center gap-1.5 mt-3">
                 <Smartphone size={14} className="text-slate-400" />
