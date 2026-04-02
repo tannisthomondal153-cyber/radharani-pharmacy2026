@@ -183,12 +183,66 @@ const oneStarComments = [
   "Wrong medicine was given to me once. Luckily I checked at home before taking it. Please be more careful.",
 ];
 
+// Extra 5-star comments specifically for January 2026 batch
+const jan2026FiveStarComments = [
+  "Starting 2026 with my trusted pharmacy! Came for my mother's diabetes medicines and everything was ready in minutes. Best pharmacy in New Barrackpore.",
+  "New year, same great service. Radharani Pharmacy never disappoints. The staff always greets with a smile. Very happy customer.",
+  "Got my whole family's January medicine stock from here. Dr. Basak gave excellent advice on my father's BP management. Highly recommend.",
+  "I had a bad cold in January and they gave me the perfect combination of medicines. Felt better within 2 days. Very knowledgeable staff.",
+  "Visited after the new year holidays. Shop was fully stocked even after the festive season. Impressed by their management.",
+  "The dermatologist Dr. Tanima Garai here is amazing. My skin condition improved dramatically with her advice. So grateful.",
+  "January special: they had a full stock of all my regular medicines without any shortage. Perfect pharmacy near Madhyamgram.",
+  "Dr. Krishnendu Das gave my wife excellent gynecological advice. Very professional, sensitive and caring doctor.",
+  "The psychiatrist Dr. Sandipta Ghosh helped my brother immensely. Compassionate care that made a real difference.",
+  "Dr. Rahul Dey treated my ear infection perfectly. Within a week I was fully recovered. Amazing ENT specialist.",
+  "Visited for my child's vaccination follow-up medicines. Dr. Kaushik Ray was so gentle and patient with my little one.",
+  "Excellent pharmacy for New Barrackpore residents. Every single time I come here I am satisfied. 5 stars always.",
+  "My spine problem was causing me severe pain. Dr. Taparia's advice and prescribed medicines gave me relief within days.",
+  "Dr. Tuhin Sarkar saw my elderly uncle and the diagnosis was spot on. Academic knowledge combined with real care.",
+  "I am so thankful this pharmacy exists near our colony. The staff is like family now. Warmest pharmacy in the area.",
+  "Radharani Pharmacy saved my new year. I had an allergic reaction on 1st January and they were open and helpful immediately.",
+  "January 2026 and my loyalty continues to this wonderful pharmacy. Never going anywhere else. The trust is unmatched.",
+  "Best start to 2026! Got my full prescription filled in one visit. No running around. One stop solution.",
+  "The team here worked seamlessly even after the new year rush. Stock was full, service was fast. Really impressive.",
+  "Five stars for the excellent consultation by Dr. Basak regarding my father's stroke recovery medicines. Life-changing advice.",
+  "Ekhane sob kichu pawa jaye. Every medicine, every consultation available. Never been disappointed. Obossho 5 taara.",
+  "A pharmacy that genuinely cares about patients, not just sales. The doctor's advice here is worth more than gold.",
+  "My whole colony depends on Radharani Pharmacy. We are so lucky to have such a dedicated team near us.",
+  "The service in January 2026 was even better than before. They have really improved. Kudos to the whole team.",
+  "Got my orthopaedic medicines from here. Dr. Taparia's recommendations were perfect. Knee pain is finally manageable.",
+  "Wonderful pharmacy. The staff explains every medicine interaction carefully. I feel safe taking medicines from here.",
+  "Dr. Ghosh helped me overcome my anxiety with the right medicines and guidance. I am forever grateful.",
+  "Superb service as always. They even remembered my father's special insulin brand without me mentioning it.",
+  "This pharmacy has the best collection of pediatric medicines in the Madhyamgram area. My kids' health is in safe hands.",
+  "January 2026 has started on a positive note thanks to this pharmacy's exceptional service and genuine care.",
+  "The whole medical team here is outstanding. Each doctor is highly qualified and genuinely concerned about patient welfare.",
+  "I drove from Barasat to come here because the service and quality is unmatched. Worth every kilometer.",
+  "My father's diabetic neuropathy medicines were difficult to find. They arranged everything within hours. Miracle workers.",
+  "Premium quality pharmacy with a human touch. This is what healthcare should look like everywhere.",
+  "Best pharmacy experience I have ever had. No exaggeration. The staff, the doctors, the stock - all perfect.",
+  "January resolution: only Radharani Pharmacy for all our family's medicine needs. Decision made and will not change.",
+  "The pharmacist checked my prescription thoroughly and even spotted a potential overdose issue. Real expertise on display.",
+  "So happy to see the new doctor on the panel. The specialists here cover every health need our family has.",
+  "Fast, accurate, affordable and caring. All four qualities together. Only Radharani Pharmacy delivers all this.",
+  "Excellent consultation and medicines for my mother's cardiac condition. The care and follow-up advice was exceptional.",
+];
+
 function generateDate(index: number): number {
   const startMs = new Date("2024-01-01").getTime();
   const endMs = new Date("2026-04-01").getTime();
   const range = endMs - startMs;
   const seed = (index * 2654435761) % 2147483648;
   const fraction = (seed % 10000) / 10000;
+  return Math.floor(startMs + fraction * range);
+}
+
+function generateJan2026Date(index: number): number {
+  // Spread across January 2026 (Jan 1 to Jan 31)
+  const startMs = new Date("2026-01-01").getTime();
+  const endMs = new Date("2026-01-31T23:59:59").getTime();
+  const range = endMs - startMs;
+  // Use a simple spread to distribute reviews across the month
+  const fraction = (index * 1.618 + 0.1) % 1;
   return Math.floor(startMs + fraction * range);
 }
 
@@ -202,6 +256,14 @@ function pickRating(seed: number): number {
   return 1;
 }
 
+function pickJan2026Rating(index: number): number {
+  // 98% positive: 70% give 5 stars, 28% give 4 stars, 2% give 3 stars
+  const r = index % 100;
+  if (r < 70) return 5;
+  if (r < 98) return 4;
+  return 3;
+}
+
 function pickFromArray<T>(arr: T[], seed: number): T {
   return arr[Math.abs(seed) % arr.length];
 }
@@ -212,6 +274,16 @@ function pickComment(rating: number, seed: number): string {
   if (rating === 3) return pickFromArray(threeStarComments, seed);
   if (rating === 2) return pickFromArray(twoStarComments, seed);
   return pickFromArray(oneStarComments, seed);
+}
+
+function pickJan2026Comment(rating: number, index: number): string {
+  if (rating === 5) {
+    // Mix jan2026 comments with general 5 star comments
+    const combined = [...jan2026FiveStarComments, ...fiveStarComments];
+    return pickFromArray(combined, index);
+  }
+  if (rating === 4) return pickFromArray(fourStarComments, index);
+  return pickFromArray(threeStarComments, index);
 }
 
 function generateReviews(count: number): SeededReview[] {
@@ -232,4 +304,25 @@ function generateReviews(count: number): SeededReview[] {
   return reviews;
 }
 
-export const seededReviews: SeededReview[] = generateReviews(500);
+function generateJan2026Reviews(count: number): SeededReview[] {
+  const reviews: SeededReview[] = [];
+  for (let i = 0; i < count; i++) {
+    const rating = pickJan2026Rating(i);
+    const nameSeed = i * 7919 + 13;
+    reviews.push({
+      id: `seed-jan26-${i + 1}`,
+      name: pickFromArray(allNames, nameSeed),
+      rating,
+      comment: pickJan2026Comment(rating, i),
+      createdAt: generateJan2026Date(i),
+      isSeeded: true,
+      isVerified: true,
+    });
+  }
+  return reviews;
+}
+
+export const seededReviews: SeededReview[] = [
+  ...generateReviews(500),
+  ...generateJan2026Reviews(200),
+];

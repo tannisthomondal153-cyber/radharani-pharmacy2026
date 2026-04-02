@@ -16,6 +16,9 @@ export interface Doctor {
   qualifications: string;
   schedule: string;
   description?: string;
+  specialization?: string;
+  experience?: string;
+  position?: string;
 }
 
 export interface Inquiry {
@@ -55,81 +58,91 @@ const SEED_DOCTORS: Doctor[] = [
     specialty: "General Physician",
     qualifications:
       "MBBS (Cal), USLS-BLA-1, CCCS (London), CCEBDM, CIMT, F.C.C.S",
+    specialization: "Diabetes Management, Cardiovascular Diseases, Stroke Care",
     schedule: "Monday, Wednesday & Saturday (Afternoon)",
     description:
-      "An experienced physician known for managing chronic and lifestyle-related diseases with precision and care. Specialization: Diabetes, Heart Disease, Stroke Management.",
+      "Dr. Basak is a seasoned physician with extensive expertise in managing chronic and lifestyle-related disorders. His clinical approach emphasizes precision diagnosis and long-term patient care.",
   },
   {
     id: 2,
     name: "Dr. Gaurav Taparia",
     specialty: "Orthopaedic & Spine Surgeon",
-    qualifications: "MBBS, MS (Ortho), FNB (Spine)",
+    qualifications: "MBBS, MS (Orthopaedics), FNB (Spine)",
+    specialization: "Bone, Joint & Spine Disorders",
     schedule: "Monday & Thursday",
     description:
-      "Expert in treating fractures, joint pain, and complex spine conditions with modern orthopaedic solutions. Specialization: Bone, Joint & Spine Disorders.",
+      "Dr. Taparia specializes in advanced orthopaedic and spinal treatments, offering both surgical and non-surgical solutions for fractures, joint conditions, and complex spine pathologies.",
   },
   {
     id: 3,
     name: "Dr. Kaushik Ray",
-    specialty: "Paediatrician",
+    specialty: "Consultant Paediatrician",
     qualifications: "MBBS, DCH, MD",
+    experience:
+      "Formerly associated with Dr. B.C. Roy Children's Hospital, Medical College Kolkata, Neotia Hospital, and Devine Child Care",
     schedule: "By Appointment Only",
     description:
-      "Provides specialized care for infants, children, and adolescents with a focus on overall growth and development. Formerly associated with Dr. B.C. Roy Children Hospital, Medical College Kolkata, Neotia Hospital, Devine Child Care.",
+      "Dr. Ray provides comprehensive pediatric care, focusing on the physical, emotional, and developmental well-being of infants, children, and adolescents.",
   },
   {
     id: 4,
     name: "Dr. Tuhin Shubhra Sarkar",
     specialty: "General Physician",
     qualifications: "MBBS, MD (Medicine)",
+    position: "Assistant Professor, R.G. Kar Medical College & Hospital",
     schedule: "Thursday (7:00 PM)",
     description:
-      "Offers expert consultation for a wide range of adult medical conditions with academic excellence and clinical expertise. Assistant Professor, R.G. Kar Medical College & Hospital.",
+      "Dr. Sarkar combines academic excellence with clinical expertise, offering thorough evaluation and management of a wide spectrum of adult medical conditions.",
   },
   {
     id: 5,
     name: "Dr. Tanima Garai",
-    specialty: "Dermatologist",
+    specialty: "Consultant Dermatologist",
     qualifications: "MBBS (CMC), MD (Dermatology)",
+    specialization: "Skin, Hair & Nail Disorders",
     schedule: "Every Sunday (6:00 PM)",
     description:
-      "Specialist in modern dermatological treatments for healthy skin and hair care. Specialization: Skin, Hair & Nail Disorders.",
+      "Dr. Garai specializes in modern dermatological care, providing advanced treatments for various skin, hair, and nail conditions with a focus on aesthetic and medical outcomes.",
   },
   {
     id: 6,
     name: "Dr. Sandipta Ghosh",
     specialty: "Consultant Psychiatrist",
     qualifications: "MBBS, MD",
-    schedule: "Every Day (6:00 PM)",
+    specialization: "Mental Health, Anxiety, Depression, Stress Disorders",
+    schedule: "Daily (6:00 PM)",
     description:
-      "Dedicated to improving mental well-being through compassionate and evidence-based psychiatric care. Specialization: Mental Health, Anxiety, Depression, Stress Disorders.",
+      "Dr. Ghosh is committed to promoting mental well-being through compassionate care and scientifically grounded psychiatric treatments tailored to individual needs.",
   },
   {
     id: 7,
     name: "Dr. Krishnendu Das",
-    specialty: "Gynaecologist",
+    specialty: "Consultant Gynaecologist",
     qualifications: "MBBS, MS (G&O), DNB",
+    experience:
+      "Former Visiting Surgeon at Ramakrishna Mission Seva Pratishthan; Associated with P.G. Hospital, Sishumangal Hospital & Woodlands Hospital, Kolkata",
     schedule: "Monday, Wednesday & Friday (6:00 PM)",
     description:
-      "Highly experienced in women's health, pregnancy care, and gynecological treatments. Ex-Visiting Surgeon at Ramkrishna Mission Seva Pratishthan; Associated with P.G. Hospital, Sishumangal Hospital & Woodlands Hospital, Kolkata.",
+      "Dr. Das brings extensive experience in women's healthcare, including pregnancy management, reproductive health, and advanced gynecological treatments.",
   },
   {
     id: 8,
     name: "Dr. Rahul Dey",
-    specialty: "ENT Specialist",
+    specialty: "ENT Specialist (Otorhinolaryngologist)",
     qualifications: "MBBS (Cal), MS (ENT)",
-    schedule: "Every Day",
+    specialization: "Ear, Nose, Throat & Head-Neck Surgery",
+    schedule: "Daily",
     description:
-      "Provides expert care for ENT-related issues with surgical and non-surgical treatments. Specialization: Ear, Nose, Throat & Head-Neck Surgery.",
+      "Dr. Dey provides comprehensive ENT care, including both medical and surgical management of conditions affecting the ear, nose, throat, and related structures.",
   },
   {
     id: 9,
     name: "Dr. Jagnnath Saha",
-    specialty: "General Medicine",
+    specialty: "Consultant – General Medicine",
     qualifications: "MBBS, MD (Radiotherapy)",
     schedule: "By Appointment Only",
     description:
-      "Offers general medical consultation and guidance for various health concerns.",
+      "Dr. Saha offers general medical consultation and expert guidance for a wide range of health concerns, ensuring accurate diagnosis and holistic management.",
   },
 ];
 
@@ -153,9 +166,10 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [doctors, setDoctors] = useState<Doctor[]>(() => {
     try {
-      if (localStorage.getItem("rp_doctors_v") !== "2") {
+      // v3 forces reset to include new specialization/experience/position fields
+      if (localStorage.getItem("rp_doctors_v") !== "3") {
         localStorage.removeItem("rp_doctors");
-        localStorage.setItem("rp_doctors_v", "2");
+        localStorage.setItem("rp_doctors_v", "3");
       }
       const stored = localStorage.getItem("rp_doctors");
       return stored ? JSON.parse(stored) : SEED_DOCTORS;

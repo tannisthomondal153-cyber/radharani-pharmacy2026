@@ -107,7 +107,11 @@ function StarInput({
           >
             <Star
               size={28}
-              className={`transition-colors duration-150 ${star <= (hovered || value) ? "fill-yellow-400 text-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.7)]" : "text-slate-300"}`}
+              className={`transition-colors duration-150 ${
+                star <= (hovered || value)
+                  ? "fill-yellow-400 text-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.7)]"
+                  : "text-slate-300"
+              }`}
             />
           </button>
         ))}
@@ -251,19 +255,21 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
   const submitBtnRef = useRef<HTMLButtonElement>(null);
   const [btnTranslate, setBtnTranslate] = useState({ x: 0, y: 0 });
 
-  // Only render first 100 seeded cards for performance; total count uses all 500
-  const displayedSeeded = useMemo(
-    () =>
-      seededReviews.slice(0, 100).map((r) => ({
-        id: r.id,
-        name: r.name,
-        rating: r.rating,
-        comment: r.comment,
-        createdAt: r.createdAt,
-        isVerified: true as const,
-      })),
-    [],
-  );
+  // Display first 100 original + all 200 Jan 2026 reviews (sorted newest first for Jan batch)
+  // Total seededReviews = 700 (500 original + 200 Jan 2026)
+  const displayedSeeded = useMemo(() => {
+    // Jan 2026 reviews are at index 500-699, show them first (most recent)
+    const jan2026 = seededReviews.slice(500, 700);
+    const original = seededReviews.slice(0, 100);
+    return [...jan2026, ...original].map((r) => ({
+      id: r.id,
+      name: r.name,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      isVerified: true as const,
+    }));
+  }, []);
 
   const displayedReviews: Review[] = [
     ...localReviews.slice().reverse(),
