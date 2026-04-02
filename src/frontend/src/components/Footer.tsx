@@ -150,11 +150,21 @@ export default function Footer() {
 
           <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              © {new Date().getFullYear()} Radharani Pharmacy. All rights
+              &copy; {new Date().getFullYear()} Radharani Pharmacy. All rights
               reserved.
             </p>
             <p className="text-xs text-slate-500">
               Licensed Chemist &amp; Druggist | Govt. Approved
+            </p>
+          </div>
+
+          {/* Developer credit */}
+          <div className="mt-4 pt-4 border-t border-slate-800/50 text-center">
+            <p className="text-xs text-slate-600">
+              Website designed &amp; developed by{" "}
+              <span className="text-emerald-700 font-medium">
+                Tannistho Mondal
+              </span>
             </p>
           </div>
         </div>

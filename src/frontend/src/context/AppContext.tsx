@@ -51,6 +51,10 @@ interface AppContextType {
   updateSettings: (settings: Settings) => Promise<void>;
 }
 
+// CANONICAL doctor list — v4. This is the permanent source of truth.
+// To update: change data here AND bump DOCTOR_VERSION below.
+const DOCTOR_VERSION = "4";
+
 const SEED_DOCTORS: Doctor[] = [
   {
     id: 1,
@@ -138,7 +142,7 @@ const SEED_DOCTORS: Doctor[] = [
   {
     id: 9,
     name: "Dr. Jagnnath Saha",
-    specialty: "Consultant – General Medicine",
+    specialty: "Consultant \u2013 General Medicine",
     qualifications: "MBBS, MD (Radiotherapy)",
     schedule: "By Appointment Only",
     description:
@@ -166,10 +170,10 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [doctors, setDoctors] = useState<Doctor[]>(() => {
     try {
-      // v3 forces reset to include new specialization/experience/position fields
-      if (localStorage.getItem("rp_doctors_v") !== "3") {
+      // Bump DOCTOR_VERSION whenever seed data changes to force reset on all devices
+      if (localStorage.getItem("rp_doctors_v") !== DOCTOR_VERSION) {
         localStorage.removeItem("rp_doctors");
-        localStorage.setItem("rp_doctors_v", "3");
+        localStorage.setItem("rp_doctors_v", DOCTOR_VERSION);
       }
       const stored = localStorage.getItem("rp_doctors");
       return stored ? JSON.parse(stored) : SEED_DOCTORS;
@@ -217,18 +221,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("rp_auth", String(isAuthenticated));
   }, [isAuthenticated]);
 
+  // NOTE: Doctors are managed locally only. Do NOT load from backend —
+  // the backend may contain outdated data that would overwrite the canonical list.
   useEffect(() => {
-    const load = async () => {
-      try {
-        const actor = await getActor();
-        const backendDoctors = await actor.getDoctors();
-        if (backendDoctors && backendDoctors.length > 0) {
-          const mapped = backendDoctors.map((d, i) => ({ ...d, id: i + 1 }));
-          setDoctors(mapped);
-        }
-      } catch {
-        /* use seed data */
-      }
+    const loadSettings = async () => {
       try {
         const actor = await getActor();
         const [bh, p1, p2, upi] = await Promise.all([
@@ -242,7 +238,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         /* use defaults */
       }
     };
-    load();
+    loadSettings();
   }, []);
 
   const login = useCallback((username: string, password: string): boolean => {
