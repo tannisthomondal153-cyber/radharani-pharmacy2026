@@ -1,17 +1,27 @@
-import { ArrowLeft, MessageSquare, Sparkles, Star, User } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  Loader2,
+  MessageSquare,
+  Sparkles,
+  Star,
+  User,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ReviewEntry } from "../backend";
+import { createActorWithConfig } from "../config";
 import { seededReviews } from "../data/seededReviews";
 
-const LOCAL_STORAGE_KEY = "radharani_user_reviews";
+const PAGE_SIZE = 20;
 
-interface Review {
+interface DisplayReview {
   id: string;
   name: string;
   rating: number;
   comment: string;
   createdAt: number;
-  isVerified?: boolean;
+  isVerified: boolean;
 }
 
 interface ReviewsPageProps {
@@ -138,7 +148,10 @@ function StaticStars({ rating }: { rating: number }) {
   );
 }
 
-function ReviewCard({ review, index }: { review: Review; index: number }) {
+function ReviewCard({
+  review,
+  index,
+}: { review: DisplayReview; index: number }) {
   const date = new Date(review.createdAt).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -224,41 +237,40 @@ function Particles() {
   );
 }
 
-function loadLocalReviews(): Review[] {
-  try {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalReviews(reviews: Review[]) {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(reviews));
-  } catch {
-    /* ignore */
-  }
+function toDisplayReview(entry: ReviewEntry): DisplayReview {
+  return {
+    id: `backend-${entry.id.toString()}`,
+    name: entry.name,
+    rating: Number(entry.rating),
+    comment: entry.comment,
+    createdAt: Number(entry.createdAt),
+    isVerified: entry.isVerified,
+  };
 }
 
 export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
-  const [localReviews, setLocalReviews] = useState<Review[]>(() =>
-    loadLocalReviews(),
-  );
+  // Backend user reviews state
+  const [backendReviews, setBackendReviews] = useState<DisplayReview[]>([]);
+  const [backendTotal, setBackendTotal] = useState(0);
+  const [backendHasMore, setBackendHasMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Form state
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [nameError, setNameError] = useState("");
   const [ratingError, setRatingError] = useState("");
   const submitBtnRef = useRef<HTMLButtonElement>(null);
   const [btnTranslate, setBtnTranslate] = useState({ x: 0, y: 0 });
 
-  // Display first 100 original + all 200 Jan 2026 reviews (sorted newest first for Jan batch)
-  // Total seededReviews = 700 (500 original + 200 Jan 2026)
+  // Pre-seeded reviews: Jan 2026 batch first, then original
   const displayedSeeded = useMemo(() => {
-    // Jan 2026 reviews are at index 500-699, show them first (most recent)
     const jan2026 = seededReviews.slice(500, 700);
     const original = seededReviews.slice(0, 100);
     return [...jan2026, ...original].map((r) => ({
@@ -271,23 +283,81 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
     }));
   }, []);
 
-  const displayedReviews: Review[] = [
-    ...localReviews.slice().reverse(),
+  const loadBackendPage = useCallback(async (page: number) => {
+    try {
+      const actor = await createActorWithConfig();
+      const result = await actor.getReviewsPaginated(
+        BigInt(page),
+        BigInt(PAGE_SIZE),
+      );
+      return {
+        reviews: result.reviews.map(toDisplayReview),
+        totalCount: Number(result.totalCount),
+        hasMore: result.hasMore,
+      };
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Load page 0 on mount
+  useEffect(() => {
+    let cancelled = false;
+    setInitialLoading(true);
+    loadBackendPage(0).then((result) => {
+      if (cancelled) return;
+      setInitialLoading(false);
+      if (result) {
+        setBackendReviews(result.reviews);
+        setBackendTotal(result.totalCount);
+        setBackendHasMore(result.hasMore);
+        setCurrentPage(0);
+      }
+      // Graceful degradation: if null, backendReviews stays empty, 700 seeded still shown
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadBackendPage]);
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !backendHasMore) return;
+    setLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const result = await loadBackendPage(nextPage);
+    if (result) {
+      setBackendReviews((prev) => [...prev, ...result.reviews]);
+      setBackendTotal(result.totalCount);
+      setBackendHasMore(result.hasMore);
+      setCurrentPage(nextPage);
+    }
+    setLoadingMore(false);
+  };
+
+  // Combined display: new backend user reviews first, then seeded
+  const displayedReviews: DisplayReview[] = [
+    ...backendReviews,
     ...displayedSeeded,
   ];
 
-  const totalCount = seededReviews.length + localReviews.length;
+  // Total count: 700 pre-seeded + backend total (user-submitted)
+  const totalCount = seededReviews.length + backendTotal;
+
+  // Sentiment: seeded + backend user reviews
   const seededPositiveCount = useMemo(
     () => seededReviews.filter((r) => r.rating >= 4).length,
     [],
   );
-  const localPositiveCount = localReviews.filter((r) => r.rating >= 4).length;
-  const totalPositiveCount = seededPositiveCount + localPositiveCount;
+  const backendPositiveCount = backendReviews.filter(
+    (r) => r.rating >= 4,
+  ).length;
+  const totalPositiveCount = seededPositiveCount + backendPositiveCount;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setNameError("");
     setRatingError("");
+    setSubmitError("");
     let valid = true;
     if (!name.trim()) {
       setNameError("Please enter your name");
@@ -298,24 +368,29 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
       valid = false;
     }
     if (!valid) return;
+
     setSubmitting(true);
-    const newReview: Review = {
-      id: `local-${Date.now()}`,
-      name: name.trim(),
-      rating,
-      comment: comment.trim(),
-      createdAt: Date.now(),
-      isVerified: true,
-    };
-    const updated = [...localReviews, newReview];
-    setLocalReviews(updated);
-    saveLocalReviews(updated);
-    setName("");
-    setRating(0);
-    setComment("");
-    setSubmitting(false);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    try {
+      const actor = await createActorWithConfig();
+      await actor.addUserReview(name.trim(), BigInt(rating), comment.trim());
+      // Reload page 0 to show the new review at the top
+      const result = await loadBackendPage(0);
+      if (result) {
+        setBackendReviews(result.reviews);
+        setBackendTotal(result.totalCount);
+        setBackendHasMore(result.hasMore);
+        setCurrentPage(0);
+      }
+      setName("");
+      setRating(0);
+      setComment("");
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch {
+      setSubmitError("Failed to post review. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleBtnMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -374,6 +449,7 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
           </p>
         </motion.div>
 
+        {/* Review Submission Form */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -459,7 +535,7 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/60 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all resize-none"
               />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <motion.button
                 ref={submitBtnRef}
                 type="submit"
@@ -474,15 +550,7 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
               >
                 {submitting ? (
                   <>
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 0.8,
-                        repeat: Number.POSITIVE_INFINITY,
-                        ease: "linear",
-                      }}
-                      className="block w-4 h-4 border-2 border-white/40 border-t-white rounded-full"
-                    />
+                    <Loader2 size={16} className="animate-spin" />
                     Posting...
                   </>
                 ) : (
@@ -498,7 +566,19 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
                     data-ocid="reviews.success_state"
                     className="flex items-center gap-1.5 text-emerald-600 text-sm font-semibold"
                   >
-                    <span className="text-lg">✓</span> Review saved!
+                    <span className="text-lg">✓</span> Review posted! Visible to
+                    everyone.
+                  </motion.div>
+                )}
+                {submitError && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    data-ocid="reviews.error_state"
+                    className="flex items-center gap-1.5 text-rose-500 text-sm font-semibold"
+                  >
+                    <span className="text-lg">⚠</span> {submitError}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -506,6 +586,7 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
           </form>
         </motion.div>
 
+        {/* Reviews List */}
         <div>
           {totalCount >= 3 && (
             <SentimentBadge
@@ -522,8 +603,12 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
                 ? `${totalCount.toLocaleString()} Review${totalCount !== 1 ? "s" : ""}`
                 : "Reviews"}
             </h2>
+            {initialLoading && (
+              <Loader2 size={16} className="animate-spin text-emerald-500" />
+            )}
           </div>
-          {displayedReviews.length === 0 ? (
+
+          {displayedReviews.length === 0 && !initialLoading ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -558,6 +643,32 @@ export default function ReviewsPage({ onNavigate }: ReviewsPageProps) {
                   <ReviewCard review={review} index={index} />
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {backendHasMore && (
+            <div className="flex justify-center mt-8">
+              <motion.button
+                type="button"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                data-ocid="reviews.load_more"
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 bg-white border border-emerald-200 text-emerald-700 font-semibold px-6 py-3 rounded-xl shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition-all text-sm disabled:opacity-60"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={16} />
+                    Load more reviews
+                  </>
+                )}
+              </motion.button>
             </div>
           )}
         </div>

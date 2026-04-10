@@ -3,12 +3,15 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
 
-const UPI_QR =
-  "/assets/uploads/850a9f1ffb0b967c1a81ce9174bd1f47-019d3777-930e-75dc-a161-a1ba76607789-1.webp";
-
 export default function PaymentsBlock() {
   const { settings } = useApp();
   const [copied, setCopied] = useState(false);
+
+  // Resolve QR image: prefer admin-uploaded (stored in localStorage via settings),
+  // fall back gracefully with a placeholder notice.
+  const qrImage =
+    (settings as typeof settings & { qrCodeImage?: string }).qrCodeImage ||
+    null;
 
   const copyUPI = () => {
     navigator.clipboard.writeText(settings.upiId).then(() => {
@@ -40,10 +43,11 @@ export default function PaymentsBlock() {
             Secure Digital Payments
           </h2>
           <p className="text-slate-500">
-            Pay easily using UPI. Scan the QR code or copy the UPI ID below.
+            Pay instantly using UPI — scan QR code or copy the UPI ID.
           </p>
         </motion.div>
 
+        {/* UPI Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -53,7 +57,7 @@ export default function PaymentsBlock() {
           className="max-w-3xl mx-auto glass rounded-3xl p-8 shadow-2xl shadow-emerald-900/10 border border-white/50"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Left - UPI Details */}
+            {/* Left – UPI Details */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -79,6 +83,7 @@ export default function PaymentsBlock() {
               <motion.button
                 type="button"
                 onClick={copyUPI}
+                data-ocid="copy-upi-btn"
                 className={`flex items-center gap-2 w-full justify-center py-3 rounded-xl font-semibold text-sm transition-all shimmer-btn ${
                   copied
                     ? "bg-green-600 text-white"
@@ -107,7 +112,7 @@ export default function PaymentsBlock() {
               </div>
             </div>
 
-            {/* Right - QR Code */}
+            {/* Right – QR Code */}
             <div className="flex flex-col items-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -121,11 +126,20 @@ export default function PaymentsBlock() {
                 }}
                 className="w-52 h-52 rounded-2xl overflow-hidden border-2 border-emerald-200 shadow-lg bg-white flex items-center justify-center"
               >
-                <img
-                  src={UPI_QR}
-                  alt="UPI QR Code – Scan to Pay"
-                  className="w-full h-full object-contain"
-                />
+                {qrImage ? (
+                  <img
+                    src={qrImage}
+                    alt="UPI QR Code – Scan to Pay"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-4 text-center">
+                    <CreditCard size={32} className="text-slate-300 mb-2" />
+                    <p className="text-xs text-slate-400 font-medium leading-snug">
+                      Admin: Please upload your UPI QR code in Settings
+                    </p>
+                  </div>
+                )}
               </motion.div>
               <div className="flex items-center gap-1.5 mt-3">
                 <Smartphone size={14} className="text-slate-400" />

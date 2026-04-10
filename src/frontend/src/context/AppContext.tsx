@@ -36,11 +36,50 @@ export interface Settings {
   upiId: string;
 }
 
+export interface Appointment {
+  id: number;
+  customerName: string;
+  phone: string;
+  doctorName: string;
+  preferredDate: string;
+  preferredTime: string;
+  reason: string;
+  status: "pending" | "confirmed" | "cancelled";
+  createdAt: number;
+}
+
+export interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  publishedAt: number;
+  isPublished: boolean;
+}
+
+export interface UserReview {
+  id: number;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+  isVerified: boolean;
+}
+
+export interface DeviceLogin {
+  name: string;
+  phone: string;
+  loggedInAt: number;
+}
+
+const FOUR_WEEKS_MS = 4 * 7 * 24 * 60 * 60 * 1000;
+const DEVICE_LOGIN_KEY = "radharani_device_login";
+
 interface AppContextType {
   doctors: Doctor[];
   inquiries: Inquiry[];
   settings: Settings;
   isAuthenticated: boolean;
+  deviceLogin: DeviceLogin | null;
   login: (username: string, password: string) => boolean;
   logout: () => void;
   addDoctor: (doctor: Omit<Doctor, "id">) => Promise<void>;
@@ -49,6 +88,8 @@ interface AppContextType {
   addInquiry: (inquiry: Omit<Inquiry, "id" | "submittedAt">) => void;
   clearInquiries: () => void;
   updateSettings: (settings: Settings) => Promise<void>;
+  setDeviceLogin: (login: DeviceLogin | null) => void;
+  isDeviceLoginValid: () => boolean;
 }
 
 // CANONICAL doctor list — v4. This is the permanent source of truth.
@@ -208,6 +249,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  const [deviceLogin, setDeviceLoginState] = useState<DeviceLogin | null>(
+    () => {
+      try {
+        const stored = localStorage.getItem(DEVICE_LOGIN_KEY);
+        if (!stored) return null;
+        const parsed: DeviceLogin = JSON.parse(stored);
+        const age = Date.now() - parsed.loggedInAt;
+        return age < FOUR_WEEKS_MS ? parsed : null;
+      } catch {
+        return null;
+      }
+    },
+  );
+
   useEffect(() => {
     localStorage.setItem("rp_doctors", JSON.stringify(doctors));
   }, [doctors]);
@@ -331,6 +386,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const setDeviceLogin = useCallback((dl: DeviceLogin | null) => {
+    setDeviceLoginState(dl);
+    try {
+      if (dl) {
+        localStorage.setItem(DEVICE_LOGIN_KEY, JSON.stringify(dl));
+      } else {
+        localStorage.removeItem(DEVICE_LOGIN_KEY);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const isDeviceLoginValid = useCallback((): boolean => {
+    try {
+      const stored = localStorage.getItem(DEVICE_LOGIN_KEY);
+      if (!stored) return false;
+      const parsed: DeviceLogin = JSON.parse(stored);
+      return Date.now() - parsed.loggedInAt < FOUR_WEEKS_MS;
+    } catch {
+      return false;
+    }
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -338,6 +417,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         inquiries,
         settings,
         isAuthenticated,
+        deviceLogin,
         login,
         logout,
         addDoctor,
@@ -346,6 +426,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addInquiry,
         clearInquiries,
         updateSettings,
+        setDeviceLogin,
+        isDeviceLoginValid,
       }}
     >
       {children}

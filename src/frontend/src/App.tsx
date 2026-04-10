@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import GeminiChat from "./components/GeminiChat";
 import Header from "./components/Header";
 import { AppProvider } from "./context/AppContext";
+import BlogPage from "./pages/BlogPage";
 import HomePage from "./pages/HomePage";
 import ReviewsPage from "./pages/ReviewsPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -30,11 +32,14 @@ function AppRoutes() {
   return (
     <div className="min-h-screen">
       {!isAdminRoute && <Header onNavigate={navigate} currentPath={path} />}
-      {path === "/" && <HomePage />}
+      {path === "/" && <HomePage onNavigate={navigate} />}
       {path === "/reviews" && <ReviewsPage onNavigate={navigate} />}
+      {path === "/blog" && <BlogPage onNavigate={navigate} />}
       {path === "/admin" && <AdminLogin onNavigate={navigate} />}
       {path === "/admin/dashboard" && <AdminDashboard onNavigate={navigate} />}
-      {!["/", "/reviews", "/admin", "/admin/dashboard"].includes(path) && (
+      {!["/", "/reviews", "/blog", "/admin", "/admin/dashboard"].includes(
+        path,
+      ) && (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50">
           <div className="text-center">
             <h1
@@ -62,6 +67,7 @@ export default function App() {
   return (
     <AppProvider>
       <AppRoutes />
+      <GeminiChat />
     </AppProvider>
   );
 }

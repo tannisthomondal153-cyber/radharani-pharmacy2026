@@ -10,7 +10,11 @@ const columnVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function Footer() {
+interface FooterProps {
+  onNavigate?: (path: string) => void;
+}
+
+export default function Footer({ onNavigate }: FooterProps) {
   const { settings } = useApp();
 
   const scrollTo = (id: string) => {
@@ -77,6 +81,34 @@ export default function Footer() {
                     </li>
                   ),
                 )}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => scrollTo("appointment-section")}
+                    className="text-sm text-slate-400 hover:text-emerald-400 transition-colors"
+                  >
+                    Book Appointment
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate?.("/reviews")}
+                    className="text-sm text-slate-400 hover:text-emerald-400 transition-colors"
+                    data-ocid="footer-reviews-link"
+                  >
+                    Reviews
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate?.("/blog")}
+                    className="text-sm text-slate-400 hover:text-emerald-400 transition-colors"
+                  >
+                    Blog
+                  </button>
+                </li>
               </ul>
             </motion.div>
 

@@ -4,7 +4,9 @@ import { useApp } from "../context/AppContext";
 
 const LAT = 22.698917;
 const LNG = 88.4425;
-const MAPS_EMBED = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&output=embed`;
+// OpenStreetMap embed — always works, no API key needed, no CORS issues
+const OSM_EMBED =
+  "https://www.openstreetmap.org/export/embed.html?bbox=88.4395%2C22.6959%2C88.4455%2C22.7019&layer=mapnik&marker=22.698917%2C88.442500";
 const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${LAT},${LNG}`;
 
 const infoCardDelays = [0, 0.1, 0.2];
@@ -155,17 +157,17 @@ export default function MapSection() {
                 delay: 0.1,
               }}
               whileHover={{ scale: 1.02 }}
-              className="rounded-2xl overflow-hidden shadow-2xl border border-white/40 h-96 lg:h-full"
+              className="rounded-2xl overflow-hidden shadow-2xl border border-white/40 h-96 lg:h-full min-h-[380px]"
             >
               <iframe
-                src={MAPS_EMBED}
+                src={OSM_EMBED}
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, display: "block", minHeight: "380px" }}
                 allowFullScreen
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Radharani Pharmacy Location"
+                title="Radharani Pharmacy Location – OpenStreetMap"
+                sandbox="allow-scripts allow-same-origin allow-popups"
               />
             </motion.div>
           </div>

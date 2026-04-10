@@ -10,11 +10,35 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Appointment {
+  'id' : bigint,
+  'customerName' : string,
+  'status' : string,
+  'createdAt' : bigint,
+  'preferredDate' : string,
+  'preferredTime' : string,
+  'phone' : string,
+  'doctorName' : string,
+  'reason' : string,
+}
+export interface BlogPost {
+  'id' : bigint,
+  'title' : string,
+  'content' : string,
+  'isPublished' : boolean,
+  'publishedAt' : bigint,
+}
 export interface Doctor {
   'name' : string,
   'qualifications' : string,
   'specialty' : string,
   'schedule' : string,
+}
+export interface HttpHeader { 'value' : string, 'name' : string }
+export interface HttpRequestResult {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<HttpHeader>,
 }
 export interface Prescription {
   'name' : string,
@@ -22,21 +46,67 @@ export interface Prescription {
   'phone' : string,
   'medicines' : string,
 }
+export interface Review {
+  'id' : bigint,
+  'name' : string,
+  'createdAt' : bigint,
+  'comment' : string,
+  'rating' : bigint,
+}
+export interface ReviewEntry {
+  'id' : bigint,
+  'name' : string,
+  'createdAt' : bigint,
+  'comment' : string,
+  'isVerified' : boolean,
+  'rating' : bigint,
+}
+export interface ReviewsPage {
+  'hasMore' : boolean,
+  'reviews' : Array<ReviewEntry>,
+  'totalCount' : bigint,
+}
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : HttpRequestResult,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<HttpHeader>,
+}
 export interface _SERVICE {
+  'addAppointment' : ActorMethod<
+    [string, string, string, string, string, string],
+    bigint
+  >,
+  'addBlogPost' : ActorMethod<[string, string], bigint>,
   'addDoctor' : ActorMethod<[Doctor], bigint>,
   'addPrescription' : ActorMethod<[Prescription], bigint>,
+  'addReview' : ActorMethod<[string, bigint, string], bigint>,
+  'addUserReview' : ActorMethod<[string, bigint, string], bigint>,
+  'askGemini' : ActorMethod<[string], string>,
+  'deleteBlogPost' : ActorMethod<[bigint], boolean>,
+  'getAllBlogPostsAdmin' : ActorMethod<[], Array<BlogPost>>,
+  'getAppointments' : ActorMethod<[], Array<Appointment>>,
+  'getBlogPosts' : ActorMethod<[], Array<BlogPost>>,
   'getBusinessHours' : ActorMethod<[], string>,
   'getDoctor' : ActorMethod<[bigint], Doctor>,
   'getDoctors' : ActorMethod<[], Array<Doctor>>,
   'getPhone1' : ActorMethod<[], string>,
   'getPhone2' : ActorMethod<[], string>,
   'getPrescriptions' : ActorMethod<[], Array<Prescription>>,
+  'getReviews' : ActorMethod<[], Array<Review>>,
+  'getReviewsPaginated' : ActorMethod<[bigint, bigint], ReviewsPage>,
   'getUpiId' : ActorMethod<[], string>,
   'removeDoctor' : ActorMethod<[bigint], undefined>,
   'setBusinessHours' : ActorMethod<[string], undefined>,
   'setPhone1' : ActorMethod<[string], undefined>,
   'setPhone2' : ActorMethod<[string], undefined>,
   'setUpiId' : ActorMethod<[string], undefined>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'updateAppointmentStatus' : ActorMethod<[bigint, string], boolean>,
+  'updateBlogPost' : ActorMethod<[bigint, string, string, boolean], boolean>,
   'updateDoctor' : ActorMethod<[bigint, Doctor], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

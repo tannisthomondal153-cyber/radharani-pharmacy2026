@@ -1,4 +1,4 @@
-import { Menu, Phone, X } from "lucide-react";
+import { Calendar, Menu, Phone, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
@@ -50,10 +50,12 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
   const navLinks = [
     { label: "Home", action: () => scrollTo("hero") },
     { label: "Doctors", action: () => scrollTo("doctors") },
+    { label: "Appointments", action: () => scrollTo("appointment-section") },
     { label: "Payments", action: () => scrollTo("payments") },
     { label: "Location", action: () => scrollTo("location") },
     { label: "Contact", action: () => scrollTo("contact") },
     { label: "Reviews", action: () => onNavigate("/reviews") },
+    { label: "Blog", action: () => onNavigate("/blog") },
   ];
 
   const isAdmin = currentPath.startsWith("/admin");
@@ -104,6 +106,15 @@ export default function Header({ onNavigate, currentPath }: HeaderProps) {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => scrollTo("appointment-section")}
+              className="hidden md:flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors shadow-lg shadow-emerald-900/20"
+              data-ocid="header.book-appointment"
+            >
+              <Calendar size={13} />
+              Book Appointment
+            </button>
             <a
               href={`tel:${settings.phone1.replace(/\s/g, "")}`}
               className="pulse-cta hidden sm:flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-emerald-900/20"

@@ -20,22 +20,105 @@ export const Prescription = IDL.Record({
   'phone' : IDL.Text,
   'medicines' : IDL.Text,
 });
+export const BlogPost = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'isPublished' : IDL.Bool,
+  'publishedAt' : IDL.Int,
+});
+export const Appointment = IDL.Record({
+  'id' : IDL.Nat,
+  'customerName' : IDL.Text,
+  'status' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'preferredDate' : IDL.Text,
+  'preferredTime' : IDL.Text,
+  'phone' : IDL.Text,
+  'doctorName' : IDL.Text,
+  'reason' : IDL.Text,
+});
+export const Review = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'comment' : IDL.Text,
+  'rating' : IDL.Nat,
+});
+export const ReviewEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'comment' : IDL.Text,
+  'isVerified' : IDL.Bool,
+  'rating' : IDL.Nat,
+});
+export const ReviewsPage = IDL.Record({
+  'hasMore' : IDL.Bool,
+  'reviews' : IDL.Vec(ReviewEntry),
+  'totalCount' : IDL.Nat,
+});
+export const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+export const HttpRequestResult = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(HttpHeader),
+});
+export const TransformationInput = IDL.Record({
+  'context' : IDL.Vec(IDL.Nat8),
+  'response' : HttpRequestResult,
+});
+export const TransformationOutput = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(HttpHeader),
+});
 
 export const idlService = IDL.Service({
+  'addAppointment' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'addBlogPost' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
   'addDoctor' : IDL.Func([Doctor], [IDL.Nat], []),
   'addPrescription' : IDL.Func([Prescription], [IDL.Nat], []),
+  'addReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
+  'addUserReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
+  'askGemini' : IDL.Func([IDL.Text], [IDL.Text], []),
+  'deleteBlogPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getAllBlogPostsAdmin' : IDL.Func([], [IDL.Vec(BlogPost)], ['query']),
+  'getAppointments' : IDL.Func([], [IDL.Vec(Appointment)], ['query']),
+  'getBlogPosts' : IDL.Func([], [IDL.Vec(BlogPost)], ['query']),
   'getBusinessHours' : IDL.Func([], [IDL.Text], ['query']),
   'getDoctor' : IDL.Func([IDL.Nat], [Doctor], ['query']),
   'getDoctors' : IDL.Func([], [IDL.Vec(Doctor)], ['query']),
   'getPhone1' : IDL.Func([], [IDL.Text], ['query']),
   'getPhone2' : IDL.Func([], [IDL.Text], ['query']),
   'getPrescriptions' : IDL.Func([], [IDL.Vec(Prescription)], ['query']),
+  'getReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+  'getReviewsPaginated' : IDL.Func(
+      [IDL.Nat, IDL.Nat],
+      [ReviewsPage],
+      ['query'],
+    ),
   'getUpiId' : IDL.Func([], [IDL.Text], ['query']),
   'removeDoctor' : IDL.Func([IDL.Nat], [], []),
   'setBusinessHours' : IDL.Func([IDL.Text], [], []),
   'setPhone1' : IDL.Func([IDL.Text], [], []),
   'setPhone2' : IDL.Func([IDL.Text], [], []),
   'setUpiId' : IDL.Func([IDL.Text], [], []),
+  'transform' : IDL.Func(
+      [TransformationInput],
+      [TransformationOutput],
+      ['query'],
+    ),
+  'updateAppointmentStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
+  'updateBlogPost' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Bool],
+      [IDL.Bool],
+      [],
+    ),
   'updateDoctor' : IDL.Func([IDL.Nat, Doctor], [], []),
 });
 
@@ -54,22 +137,105 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'medicines' : IDL.Text,
   });
+  const BlogPost = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'isPublished' : IDL.Bool,
+    'publishedAt' : IDL.Int,
+  });
+  const Appointment = IDL.Record({
+    'id' : IDL.Nat,
+    'customerName' : IDL.Text,
+    'status' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'preferredDate' : IDL.Text,
+    'preferredTime' : IDL.Text,
+    'phone' : IDL.Text,
+    'doctorName' : IDL.Text,
+    'reason' : IDL.Text,
+  });
+  const Review = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'comment' : IDL.Text,
+    'rating' : IDL.Nat,
+  });
+  const ReviewEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'comment' : IDL.Text,
+    'isVerified' : IDL.Bool,
+    'rating' : IDL.Nat,
+  });
+  const ReviewsPage = IDL.Record({
+    'hasMore' : IDL.Bool,
+    'reviews' : IDL.Vec(ReviewEntry),
+    'totalCount' : IDL.Nat,
+  });
+  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpRequestResult = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HttpHeader),
+  });
+  const TransformationInput = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : HttpRequestResult,
+  });
+  const TransformationOutput = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HttpHeader),
+  });
   
   return IDL.Service({
+    'addAppointment' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'addBlogPost' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
     'addDoctor' : IDL.Func([Doctor], [IDL.Nat], []),
     'addPrescription' : IDL.Func([Prescription], [IDL.Nat], []),
+    'addReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
+    'addUserReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
+    'askGemini' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'deleteBlogPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getAllBlogPostsAdmin' : IDL.Func([], [IDL.Vec(BlogPost)], ['query']),
+    'getAppointments' : IDL.Func([], [IDL.Vec(Appointment)], ['query']),
+    'getBlogPosts' : IDL.Func([], [IDL.Vec(BlogPost)], ['query']),
     'getBusinessHours' : IDL.Func([], [IDL.Text], ['query']),
     'getDoctor' : IDL.Func([IDL.Nat], [Doctor], ['query']),
     'getDoctors' : IDL.Func([], [IDL.Vec(Doctor)], ['query']),
     'getPhone1' : IDL.Func([], [IDL.Text], ['query']),
     'getPhone2' : IDL.Func([], [IDL.Text], ['query']),
     'getPrescriptions' : IDL.Func([], [IDL.Vec(Prescription)], ['query']),
+    'getReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+    'getReviewsPaginated' : IDL.Func(
+        [IDL.Nat, IDL.Nat],
+        [ReviewsPage],
+        ['query'],
+      ),
     'getUpiId' : IDL.Func([], [IDL.Text], ['query']),
     'removeDoctor' : IDL.Func([IDL.Nat], [], []),
     'setBusinessHours' : IDL.Func([IDL.Text], [], []),
     'setPhone1' : IDL.Func([IDL.Text], [], []),
     'setPhone2' : IDL.Func([IDL.Text], [], []),
     'setUpiId' : IDL.Func([IDL.Text], [], []),
+    'transform' : IDL.Func(
+        [TransformationInput],
+        [TransformationOutput],
+        ['query'],
+      ),
+    'updateAppointmentStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
+    'updateBlogPost' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Bool],
+        [IDL.Bool],
+        [],
+      ),
     'updateDoctor' : IDL.Func([IDL.Nat, Doctor], [], []),
   });
 };

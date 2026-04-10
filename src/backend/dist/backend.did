@@ -1,0 +1,112 @@
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec HttpHeader;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: HttpRequestResult;
+ };
+type ReviewsPage = 
+ record {
+   hasMore: bool;
+   reviews: vec ReviewEntry;
+   totalCount: nat;
+ };
+type ReviewEntry = 
+ record {
+   comment: text;
+   createdAt: int;
+   id: nat;
+   isVerified: bool;
+   name: text;
+   rating: nat;
+ };
+type Review = 
+ record {
+   comment: text;
+   createdAt: int;
+   id: nat;
+   name: text;
+   rating: nat;
+ };
+type Prescription = 
+ record {
+   medicines: text;
+   name: text;
+   phone: text;
+   submittedAt: int;
+ };
+type HttpRequestResult = 
+ record {
+   body: blob;
+   headers: vec HttpHeader;
+   status: nat;
+ };
+type HttpHeader = 
+ record {
+   name: text;
+   value: text;
+ };
+type Doctor = 
+ record {
+   name: text;
+   qualifications: text;
+   schedule: text;
+   specialty: text;
+ };
+type BlogPost = 
+ record {
+   content: text;
+   id: nat;
+   isPublished: bool;
+   publishedAt: int;
+   title: text;
+ };
+type Appointment = 
+ record {
+   createdAt: int;
+   customerName: text;
+   doctorName: text;
+   id: nat;
+   phone: text;
+   preferredDate: text;
+   preferredTime: text;
+   reason: text;
+   status: text;
+ };
+service : {
+  addAppointment: (customerName: text, phone: text, doctorName: text,
+   preferredDate: text, preferredTime: text, reason: text) -> (nat);
+  addBlogPost: (title: text, content: text) -> (nat);
+  addDoctor: (doctor: Doctor) -> (nat);
+  addPrescription: (prescription: Prescription) -> (nat);
+  addReview: (name: text, rating: nat, comment: text) -> (nat);
+  addUserReview: (name: text, rating: nat, comment: text) -> (nat);
+  askGemini: (prompt: text) -> (text);
+  deleteBlogPost: (id: nat) -> (bool);
+  getAllBlogPostsAdmin: () -> (vec BlogPost) query;
+  getAppointments: () -> (vec Appointment) query;
+  getBlogPosts: () -> (vec BlogPost) query;
+  getBusinessHours: () -> (text) query;
+  getDoctor: (id: nat) -> (Doctor) query;
+  getDoctors: () -> (vec Doctor) query;
+  getPhone1: () -> (text) query;
+  getPhone2: () -> (text) query;
+  getPrescriptions: () -> (vec Prescription) query;
+  getReviews: () -> (vec Review) query;
+  getReviewsPaginated: (page: nat, pageSize: nat) -> (ReviewsPage) query;
+  getUpiId: () -> (text) query;
+  removeDoctor: (id: nat) -> ();
+  setBusinessHours: (newBusinessHours: text) -> ();
+  setPhone1: (newPhone1: text) -> ();
+  setPhone2: (newPhone2: text) -> ();
+  setUpiId: (newUpiId: text) -> ();
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  updateAppointmentStatus: (id: nat, status: text) -> (bool);
+  updateBlogPost: (id: nat, title: text, content: text, isPublished: 
+   bool) -> (bool);
+  updateDoctor: (id: nat, doctor: Doctor) -> ();
+}
